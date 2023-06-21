@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Container, GithubLogo, SearchForm } from './styles';
 
-const Header = () => {
+const Header : React.FC  = () => {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
 
@@ -13,15 +13,18 @@ const Header = () => {
     navigate('/' + search.toLowerCase().trim());
   }
 
- 
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    setSearch(event.currentTarget.value);
+  }
+
   return (
     <Container>
-      <GithubLogo/>
+      <GithubLogo />
       <SearchForm onSubmit={handleSubmit}>
         <input
           placeholder="Search or Jump to..."
           value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
+          onChange={handleChange}
         />
       </SearchForm>
     </Container>

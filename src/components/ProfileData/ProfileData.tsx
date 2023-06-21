@@ -1,6 +1,17 @@
 import React from 'react';
 
-import {Container,Flex,Avatar,Row,PeopleIcon,Column,CompanyIcon,LocationIcon,EmailIcon,BlogIcon,} from './styles'
+import {
+  Container,
+  Flex,
+  Avatar,
+  Row,
+  PeopleIcon,
+  Column,
+  CompanyIcon,
+  LocationIcon,
+  EmailIcon,
+  BlogIcon,
+} from './styles';
 
 interface Props {
   username: string;
@@ -29,7 +40,6 @@ const ProfileData: React.FC<Props> = ({
     <Container>
       <Flex>
         <Avatar src={avatarUrl} alt={username} />
-
         <div>
           <h1>{name}</h1>
           <h2>{username}</h2>
@@ -40,8 +50,7 @@ const ProfileData: React.FC<Props> = ({
         <li>
           <PeopleIcon />
           <b>{followers}</b>
-          <span>followers</span>
-          <span>·</span>
+          <span>{`followers · `}</span>
         </li>
         <li>
           <b>{following}</b>
@@ -79,4 +88,4 @@ const ProfileData: React.FC<Props> = ({
   );
 };
 
-export default ProfileData
+export default ProfileData;

@@ -19,20 +19,30 @@ interface Data {
   error?: string;
 }
 
-const Repo = () => {
-  const { username, reponame } = useParams();
-  const [data, setData] = useState<Data>();
+const Repo: React.FC = () => {
+  const { username, reponame } = useParams<{ username: string; reponame: string }>();
+  const [data, setData] = useState<Data | null>(null);
 
   useEffect(() => {
-    fetch(`https://api.github.com/repos/${username}/${reponame}`).then(
-      async (response) => {
-        setData(
-          response.status === 404
-            ? { error: 'Repository not found!' }
-            : { repo: await response.json() }
-        );
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`https://api.github.com/repos/${username}/${reponame}`);
+        if (!response.ok) {
+          throw new Error('Repository not found!');
+        }
+        const repoData: APIRepo = await response.json();
+        setData({ repo: repoData });
+      } catch (error) {
+        if (error instanceof Error) {
+          // ✅ TypeScript knows err is Error
+          setData({ error: error.message });
+        } else {
+          console.log('Unexpected error', error);
+        }
       }
-    );
+    };
+
+    fetchData();
   }, [reponame, username]);
 
   if (data?.error) {
@@ -43,38 +53,37 @@ const Repo = () => {
     return <h1>Loading...</h1>;
   }
 
+  const { repo } = data;
+
   return (
     <Container>
       <Breadcrumb>
         <RepoIcon />
-
-        <Link className={'username'} to={`/${username}`}>
+        <Link className="username" to={`/${username}`}>
           {username}
         </Link>
-
         <span>/</span>
-
-        <Link className={'reponame'} to={`/${username}/${reponame}`}>
+        <Link className="reponame" to={`/${username}/${reponame}`}>
           {reponame}
         </Link>
       </Breadcrumb>
 
-      <p>{data.repo.description}</p>
+      <p>{repo.description}</p>
 
       <Stats>
         <li>
           <StarIcon />
-          <b>{data.repo.stargazers_count}</b>
+          <b>{repo.stargazers_count}</b>
           <span>stars</span>
         </li>
         <li>
           <ForkIcon />
-          <b>{data.repo.forks}</b>
+          <b>{repo.forks}</b>
           <span>forks</span>
         </li>
       </Stats>
 
-      <LinkButton href={data.repo.html_url}>
+      <LinkButton href={repo.html_url}>
         <GithubIcon />
         <span>View on GitHub</span>
       </LinkButton>

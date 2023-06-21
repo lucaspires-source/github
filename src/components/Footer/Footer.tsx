@@ -1,11 +1,11 @@
 import React from 'react';
-import { Container, Line, GithubLogo } from './styles'
+import { Container, Line, GithubLogo } from './styles';
 
-const Footer = () => {
+const Footer : React.FC   = () => {
   return (
     <Container>
       <Line data-testid="line" />
-      <GithubLogo data-testid="github-logo"/>
+      <GithubLogo data-testid="github-logo" />
     </Container>
   );
 };
