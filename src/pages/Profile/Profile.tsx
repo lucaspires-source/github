@@ -12,9 +12,9 @@ import {
   Tab,
 } from './styles';
 
-import ProfileData from '../../components/ProfileData' ;
-import RepoCard from '../../components/RepoCard';
-import RandomCalendar from '../../components/RandomCalendar';
+import ProfileData from '../../components/ProfileData/ProfileData' ;
+import RepoCard from '../../components/RepoCard/RepoCard';
+import RandomCalendar from '../../components/RandomCalendar/RandomCalendar';
 
 import { APIUser, APIRepo } from '../../@types';
 
