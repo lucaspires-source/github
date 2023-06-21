@@ -12,7 +12,7 @@ import {
   Tab,
 } from './styles';
 
-import ProfileData from '../../components/ProfileData/ProfileData' ;
+import ProfileData from '../../components/ProfileData/ProfileData';
 import RepoCard from '../../components/RepoCard/RepoCard';
 import RandomCalendar from '../../components/RandomCalendar/RandomCalendar';
 
@@ -24,33 +24,44 @@ interface Data {
   error?: string;
 }
 
-const Profile  = () => {
+const Profile: React.FC = () => {
   const { username = 'lucaspires-source' } = useParams();
-  const [data, setData] = useState<Data>();
+  const [data, setData] = useState<Data | null>(null);
 
   useEffect(() => {
-    Promise.all([
-      fetch(`https://api.github.com/users/${username}`),
-      fetch(`https://api.github.com/users/${username}/repos`),
-    ]).then(async (responses) => {
-      const [userResponse, reposResponse] = responses;
+    const fetchData = async () => {
+      try {
+        const [userResponse, reposResponse] = await Promise.all([
+          fetch(`https://api.github.com/users/${username}`),
+          fetch(`https://api.github.com/users/${username}/repos`),
+        ]);
 
-      if (userResponse.status === 404) {
-        setData({ error: 'User not found!' });
-        return;
+        if (!userResponse.ok) {
+          throw new Error('User not found!');
+        }
+
+        const user = await userResponse.json();
+        const repos = await reposResponse.json();
+
+        const shuffledRepos = repos.sort(() => 0.5 - Math.random());
+        const slicedRepos = shuffledRepos.slice(0, 6); // 6 repos
+
+        setData({
+          user,
+          repos: slicedRepos,
+        });
+      } catch (error) {
+
+        if (error instanceof Error) {
+          // ✅ TypeScript knows err is Error
+          setData({ error: error.message });
+        } else {
+          console.log('Unexpected error', error);
+        }
       }
+    };
 
-      const user = await userResponse.json();
-      const repos = await reposResponse.json();
-
-      const shuffledRepos = repos.sort(() => 0.5 - Math.random());
-      const slicedRepos = shuffledRepos.slice(0, 6); // 6 repos
-
-      setData({
-        user,
-        repos: slicedRepos,
-      });
-    });
+    fetchData();
   }, [username]);
 
   if (data?.error) {
@@ -61,11 +72,13 @@ const Profile  = () => {
     return <h1>Loading...</h1>;
   }
 
+  const { user, repos } = data;
+
   const TabContent = () => (
     <div className="content">
       <RepoIcon />
       <span className="label">Repositories</span>
-      <span className="number">{data.user?.public_repos}</span>
+      <span className="number">{user.public_repos}</span>
     </div>
   );
 
@@ -76,22 +89,21 @@ const Profile  = () => {
           <span className="offset" />
           <TabContent />
         </div>
-
         <span className="line" />
       </Tab>
 
       <Main>
         <LeftSide>
           <ProfileData
-            username={data.user.login}
-            name={data.user.name}
-            avatarUrl={data.user.avatar_url}
-            followers={data.user.followers}
-            following={data.user.following}
-            company={data.user.company}
-            location={data.user.location}
-            email={data.user.email}
-            blog={data.user.blog}
+            username={user.login}
+            name={user.name}
+            avatarUrl={user.avatar_url}
+            followers={user.followers}
+            following={user.following}
+            company={user.company}
+            location={user.location}
+            email={user.email}
+            blog={user.blog}
           />
         </LeftSide>
 
@@ -103,9 +115,8 @@ const Profile  = () => {
 
           <Repos>
             <h2>Random repos</h2>
-
             <div>
-              {data.repos.map((item) => (
+              {repos.map((item) => (
                 <RepoCard
                   key={item.name}
                   username={item.owner.login}
